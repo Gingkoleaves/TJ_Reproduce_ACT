@@ -231,22 +231,6 @@ def validate(
 # Evaluation (rollout in MuJoCo simulation)
 # ---------------------------------------------------------------------------
 
-class PolicyWrapper:
-    """Adapts our DETRVAE to the original ACTPolicy inference interface."""
-
-    def __init__(self, model: nn.Module):
-        self.model = model
-        self.normalize = transforms.Normalize(
-            mean=[0.485, 0.456, 0.406],
-            std=[0.229, 0.224, 0.225],
-        )
-
-    def __call__(self, qpos: torch.Tensor, image: torch.Tensor) -> torch.Tensor:
-        image = self.normalize(image)
-        a_hat, _, _ = self.model(qpos, image, None)
-        return a_hat
-
-
 def _get_image(ts, camera_names: list[str], device: torch.device) -> torch.Tensor:
     """Extract and stack images from an environment timestep.
 
@@ -276,7 +260,6 @@ def eval_bc(args: argparse.Namespace, ckpt_path: str) -> tuple[float, float]:
     checkpoint = torch.load(ckpt_path, map_location=device, weights_only=False)
     model.load_state_dict(checkpoint['model_state_dict'])
     model.eval()
-    policy = PolicyWrapper(model)
     print(f'Loaded checkpoint: {ckpt_path}')
 
     # ---- Load normalization stats ----------------------------------------
@@ -339,7 +322,8 @@ def eval_bc(args: argparse.Namespace, ckpt_path: str) -> tuple[float, float]:
 
                 # Query policy
                 if t % query_frequency == 0:
-                    all_actions = policy(qpos, curr_image)  # (1, K, 14)
+                    all_actions, _, _ = model(  # (1, K, 14)
+                        qpos, IMAGENET_NORM(curr_image), None)
 
                 if args.temporal_agg:
                     all_time_actions[t, t:t + num_queries] = all_actions[0]

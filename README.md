@@ -277,10 +277,7 @@ Available tasks (from `util/config.py`):
 
 ## Key Design Notes
 
-1. **Image normalization**: Images are always processed as `/255.0 → ImageNet Normalize(mean=[0.485,0.456,0.406], std=[0.229,0.224,0.225])`. This is required by the pretrained ResNet backbone and is applied consistently in both training and evaluation.
-
-2. **Position encoding**: DETR-style — position info is added only to Q and K in attention, NOT to V. 2D sine encoding for image features, learned embeddings for query tokens.
-
-3. **CVAE posterior**: During training, the encoder sees `[CLS, qpos, ground-truth actions]` to produce `(μ, σ)`. During inference, `z=0` (prior mean).
-
-4. **Post-LN only**: The decoder uses post-LayerNorm. Pre-LN is available for the encoder but not validated.
+> 原实现提供了norm/attn不同顺序的实现，照抄
+> decoder只过了一层，拿出来后给两个mlp分别解码14d action和padding；decoder实际使用的是可学习的位置编码只是tgt为0
+> pos-emb只给query和key加，value不加；有1d和2d两个pos-emb，前者固定编码了cls和joints、action-seq，后者只为imaage编码，joints和z用可学习向量做pos-emb
+> 训练时使用真实的padding，推理时默认全部执行[指数加权]，所以padding实际上没有使用到
