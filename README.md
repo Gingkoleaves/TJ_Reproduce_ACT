@@ -281,3 +281,13 @@ Available tasks (from `util/config.py`):
 > decoder只过了一层，拿出来后给两个mlp分别解码14d action和padding；decoder实际使用的是可学习的位置编码只是tgt为0
 > pos-emb只给query和key加，value不加；有1d和2d两个pos-emb，前者固定编码了cls和joints、action-seq，后者只为imaage编码，joints和z用可学习向量做pos-emb
 > 训练时使用真实的padding，推理时默认全部执行[指数加权]，所以padding实际上没有使用到
+
+transfer cube 成功率94%，与原repo描述90%以上匹配:
+
+> Success rate: 94.00%
+> Average return: 673.1
+> Reward >= 0: 50/50 = 100.0%
+> Reward >= 1: 50/50 = 100.0%
+> Reward >= 2: 49/50 = 98.0%
+> Reward >= 3: 47/50 = 94.0%
+> Reward >= 4: 47/50 = 94.0%
