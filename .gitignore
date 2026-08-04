@@ -1,0 +1,22 @@
+# Datasets
+datasets/
+
+# Checkpoints & training outputs
+checkpoints/
+*.ckpt
+*.pkl
+commandline_args.json
+eval_result.txt
+
+# Rollout videos
+*.mp4
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.ipynb_checkpoints/
+
+# IDE
+.vscode/
+.idea/
